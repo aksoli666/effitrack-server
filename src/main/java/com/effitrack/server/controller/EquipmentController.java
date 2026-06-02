@@ -2,6 +2,7 @@ package com.effitrack.server.controller;
 
 import com.effitrack.server.constant.StringConst;
 import com.effitrack.server.model.Equipment;
+import com.effitrack.server.model.dto.EquipmentUpdateRequest;
 import com.effitrack.server.model.dto.StatusRequest;
 import com.effitrack.server.service.EquipmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,11 +13,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
+
+import static com.effitrack.server.constant.StringConst.ENDPOINT_AI_ANALYSIS;
+import static com.effitrack.server.constant.StringConst.OP_EQ_AI_DESC;
+import static com.effitrack.server.constant.StringConst.OP_EQ_AI_SUM;
+import static com.effitrack.server.constant.StringConst.OP_EQ_UPDATE_DESC;
+import static com.effitrack.server.constant.StringConst.OP_EQ_UPDATE_SUM;
+
 
 @RestController
 @Tag(name = StringConst.TAG_EQUIPMENT, description = StringConst.TAG_EQUIPMENT_DESC)
@@ -65,5 +75,24 @@ public class EquipmentController {
     public ResponseEntity<?> changeStatus(@PathVariable Long id, @RequestBody StatusRequest request) {
         service.changeStatus(id, request.getStatus(), request.getReason());
         return ResponseEntity.ok(StringConst.SUCCESS_STATUS_UPDATED);
+    }
+
+    @Operation(summary = OP_EQ_UPDATE_SUM, description = OP_EQ_UPDATE_DESC)
+    @PutMapping(StringConst.ENDPOINT_BY_ID)
+    public ResponseEntity<Equipment> updateEquipment(
+            @PathVariable Long id,
+            @RequestBody EquipmentUpdateRequest request
+    ) {
+        return service.updateEquipmentData(id, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = OP_EQ_AI_SUM, description = OP_EQ_AI_DESC)
+    @PostMapping(ENDPOINT_AI_ANALYSIS)
+    public ResponseEntity<Equipment> getAiAnalysis(@PathVariable Long id) {
+        return service.generateAndSaveAiAnalysis(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

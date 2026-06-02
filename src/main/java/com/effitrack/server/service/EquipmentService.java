@@ -5,6 +5,7 @@ import com.effitrack.server.model.Equipment;
 import com.effitrack.server.model.EquipmentLog;
 import com.effitrack.server.model.EquipmentStatus;
 import com.effitrack.server.model.User;
+import com.effitrack.server.model.dto.EquipmentUpdateRequest;
 import com.effitrack.server.repository.EquipmentLogRepository;
 import com.effitrack.server.repository.EquipmentRepository;
 import com.effitrack.server.repository.UserRepository;
@@ -21,6 +22,11 @@ import static com.effitrack.server.constant.StringConst.ERROR_PREFIX_OBJ_NOT_FOU
 
 @Service
 public class EquipmentService {
+    private static final String AI_NOT_NEEDED_MSG = "Обладнання працює справно. Аналіз не потрібен.";
+    private static final String LOG_NOT_FOUND_MSG = "Лог інциденту не знайдено.";
+    private static final String DEFAULT_SYSTEM_REASON = "Причина не вказана автоматикою.";
+    private static final String DEFAULT_OPERATOR_COMMENT = "Оператор ще не залишив текстовий коментар.";
+    private static final String PROMPT_CONTEXT_FORMAT = "Системний код/причина: %s. Додаткові деталі від оператора: %s.";
     @Autowired
     private EquipmentRepository equipmentRepository;
     @Autowired
@@ -29,6 +35,8 @@ public class EquipmentService {
     private UserRepository userRepository;
     @Autowired
     private EquipmentMetricsHandler metricsHandler;
+    @Autowired
+    private AiAnalysisService aiAnalysisService;
 
     public Equipment saveEquipment(Equipment equipment) {
         if (equipment.getLastStatusChange() == null) {
@@ -49,7 +57,10 @@ public class EquipmentService {
 
     public List<Equipment> getAllEquipment() {
         List<Equipment> list = equipmentRepository.findAll();
-        list.forEach(metricsHandler::calculateDynamicFields);
+        list.forEach(eq -> {
+            metricsHandler.calculateDynamicFields(eq);
+            enrichWithActiveLogData(eq);
+        });
         return list;
     }
 
@@ -63,19 +74,28 @@ public class EquipmentService {
             return Collections.emptyList();
         }
 
-        userEquipment.forEach(metricsHandler::calculateDynamicFields);
+        userEquipment.forEach(eq -> {
+            metricsHandler.calculateDynamicFields(eq);
+            enrichWithActiveLogData(eq);
+        });
         return userEquipment;
     }
 
     public Optional<Equipment> findById(Long id) {
         Optional<Equipment> eq = equipmentRepository.findById(id);
-        eq.ifPresent(metricsHandler::calculateDynamicFields);
+        eq.ifPresent(e -> {
+            metricsHandler.calculateDynamicFields(e);
+            enrichWithActiveLogData(e);
+        });
         return eq;
     }
 
     public Optional<Equipment> findByInventoryNum(String inv) {
         Optional<Equipment> eq = equipmentRepository.findByInventoryNumber(inv);
-        eq.ifPresent(metricsHandler::calculateDynamicFields);
+        eq.ifPresent(e -> {
+            metricsHandler.calculateDynamicFields(e);
+            enrichWithActiveLogData(e);
+        });
         return eq;
     }
 
@@ -105,6 +125,64 @@ public class EquipmentService {
             equipment.setLastStatusChange(now);
 
             equipmentRepository.save(equipment);
+        }
+    }
+
+    @Transactional
+    public Optional<Equipment> updateEquipmentData(Long id, EquipmentUpdateRequest request) {
+        return equipmentRepository.findById(id).map(equipment -> {
+            logRepository.findFirstByEquipmentIdAndEndTimeIsNullOrderByStartTimeDesc(id)
+                    .ifPresent(activeLog -> {
+                        activeLog.setOperatorComment(request.getOperatorComment());
+                        logRepository.save(activeLog);
+                    });
+
+            equipment.setOperatorComment(request.getOperatorComment());
+            metricsHandler.calculateDynamicFields(equipment);
+            return equipment;
+        });
+    }
+
+    @Transactional
+    public Optional<Equipment> generateAndSaveAiAnalysis(Long id) {
+        return equipmentRepository.findById(id).map(equipment -> {
+            if (equipment.getStatus() == EquipmentStatus.RUNNING) {
+                equipment.setAiAnalysis(AI_NOT_NEEDED_MSG);
+                return equipment;
+            }
+
+            EquipmentLog activeLog = logRepository
+                    .findFirstByEquipmentIdAndEndTimeIsNullOrderByStartTimeDesc(id)
+                    .orElse(null);
+
+            if (activeLog == null) {
+                equipment.setAiAnalysis(LOG_NOT_FOUND_MSG);
+                return equipment;
+            }
+
+            String systemReason = activeLog.getReason() != null ? activeLog.getReason() : DEFAULT_SYSTEM_REASON;
+            String operatorText = activeLog.getOperatorComment() != null ? activeLog.getOperatorComment() : DEFAULT_OPERATOR_COMMENT;
+
+            String fullFaultContext = String.format(PROMPT_CONTEXT_FORMAT, systemReason, operatorText);
+
+            String freshAnalysis = aiAnalysisService.generateFixAnalysis(equipment.getName(), fullFaultContext);
+
+            activeLog.setAiAnalysis(freshAnalysis);
+            logRepository.save(activeLog);
+
+            equipment.setAiAnalysis(freshAnalysis);
+            metricsHandler.calculateDynamicFields(equipment);
+            return equipment;
+        });
+    }
+
+    private void enrichWithActiveLogData(Equipment equipment) {
+        if (equipment.getStatus() != EquipmentStatus.RUNNING) {
+            logRepository.findFirstByEquipmentIdAndEndTimeIsNullOrderByStartTimeDesc(equipment.getId())
+                    .ifPresent(activeLog -> {
+                        equipment.setOperatorComment(activeLog.getOperatorComment());
+                        equipment.setAiAnalysis(activeLog.getAiAnalysis());
+                    });
         }
     }
 }

@@ -22,7 +22,6 @@ public class StringConst {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String AUTHORITY_MASTER = "hasAuthority('MASTER')";
-    public static final String AUTHORITY_OPERATOR = "hasAuthority('OPERATOR')";
     public static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**", "/api/simulation/**", "/ws-connect/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
@@ -34,7 +33,6 @@ public class StringConst {
     // --- MASTER DEFAULT ---
     public static final String MASTER_FULL_NAME = "Головний Майстер";
     public static final String MASTER_TABLE_NUMBER = "9999";
-    public static final String MASTER_PIN_CODE = "0000";
     public static final String MASTER_PROFESSION = "Оператор ЧПУ / 5 розряд";
     public static final String MASTER_SHOP_NUMBER = "Цех №5";
     public static final String MASTER_EMAIL = "mastre.effi.track@gmail.com";
@@ -51,6 +49,7 @@ public class StringConst {
     public static final String ENDPOINT_REGISTER_BATCH = "/register/batch";
     public static final String ENDPOINT_LOGIN = "/login";
     public static final String ENDPOINT_EQUIPMENT_BATCH = "/batch";
+    public static final String ENDPOINT_AI_ANALYSIS = "/{id}/ai-analysis";
     public static final String ENDPOINT_TASK_BATCH = "/batch/{userId}";
     public static final String ENDPOINT_SEARCH = "/search";
     public static final String ENDPOINT_BY_ID = "/{id}";
@@ -133,6 +132,10 @@ public class StringConst {
     public static final String OP_EQ_ID_DESC = "Повертає повну інформацію про верстат за ID (включно з датами ТО).";
     public static final String OP_EQ_STATUS_SUM = "Змінити статус";
     public static final String OP_EQ_STATUS_DESC = "Оператор змінює статус (Простій/Робота) та вказує причину.";
+    public static final String OP_EQ_UPDATE_SUM = "Оновити коментар оператора";
+    public static final String OP_EQ_UPDATE_DESC = "Додає або редагує текстовий коментар оператора до поточного інциденту.";
+    public static final String OP_EQ_AI_SUM = "Згенерувати AI-аналіз поломки";
+    public static final String OP_EQ_AI_DESC = "Звертається до нейромережі для аналізу поточної системної причини та коментаря оператора.";
     public static final String OP_USER_PROFILE_SUM = "Профіль користувача";
     public static final String OP_USER_PROFILE_DESC = "Отримати ПІБ, цех та роль за ID.";
     public static final String OP_USER_MY_EQ_SUM = "Моє обладнання";
@@ -157,6 +160,15 @@ public class StringConst {
     public static final String HTML_BR = "<br/>";
     public static final String HTML_BODY_START = "<html><body>";
     public static final String HTML_BODY_END = "</body></html>";
+    public static final String HTML_TAG_TR_START = "<tr>";
+    public static final String HTML_TAG_TR_END = "</tr>";
+    public static final String HTML_TAG_DIV_START_FMT = "<div style=\"%s\">";
+    public static final String HTML_TAG_DIV_END = "</div>";
+    public static final String HTML_TAG_I_START = "<i>";
+    public static final String HTML_TAG_I_END = "</i>";
+    public static final String HTML_TAG_TABLE_END = "</table>";
+    public static final String HTML_TD_DETAILS_FMT = "<td colspan=\"5\" style=\"%s\">";
+    public static final String HTML_TAG_TD_END = "</td>";
 
     // -- Task Report HTML --
     public static final String MSG_NO_TASKS = "<p><i>Завдань за цей період немає.</i></p>";
@@ -167,6 +179,7 @@ public class StringConst {
     public static final String TEXT_STATUS_DONE = "Виконано";
     public static final String TEXT_STATUS_IN_PROGRESS = "В роботі";
     public static final String TEXT_TIME_SUFFIX = " хв.";
+    public static final String TEXT_LABEL_TASK_COMMENT = "Коментар виконавця:";
 
     // -- Equipment Report HTML --
     public static final String HTML_H2_EQUIPMENT_REPORT = "<h2>Звіт ефективності обладнання</h2>";
@@ -178,6 +191,9 @@ public class StringConst {
     public static final String TEXT_HEADER_DOWNTIME_MIN = "Простій (хв)";
     public static final String TEXT_HEADER_SETUP_MIN = "Налагодження (хв)";
     public static final String MSG_CHART_ATTACHED = "<p><i>Графік ефективності додано у вкладенні.</i></p>";
+    public static final String TEXT_LABEL_OPERATOR_COMMENT = "Коментар оператора:";
+    public static final String TEXT_LABEL_AI_ANALYSIS = "Аналіз AI-помічника:";
+    public static final String TEXT_VALUE_NOT_SPECIFIED = "Не вказано";
 
     // -- CSS Styles --
     public static final String STYLE_TABLE = "width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;";
@@ -192,6 +208,12 @@ public class StringConst {
     public static final String STYLE_CELL_GREEN_BOLD = "border: 1px solid #ddd; padding: 8px; color: green;";
     public static final String STYLE_CELL_RED_BOLD = "border: 1px solid #ddd; padding: 8px; color: red;";
     public static final String STYLE_CELL_ORANGE = "border: 1px solid #ddd; padding: 8px; color: orange;";
+    public static final String STYLE_DETAILS_CONTAINER = "background-color: #fafafa; border-left: 4px solid #768088; padding: 10px; margin-top: 5px; font-family: Arial, sans-serif;";
+    public static final String STYLE_AI_CONTAINER = "background-color: #f4f7f9; border-left: 4px solid #009951; padding: 10px; margin-top: 5px; font-family: Arial, sans-serif;";
+    public static final String STYLE_LABEL_TITLE = "font-size: 12px; font-weight: bold; color: #555555; text-transform: uppercase; margin-bottom: 4px;";
+    public static final String STYLE_TEXT_CONTENT = "font-size: 14px; color: #222222; line-height: 1.4;";
+    public static final String STYLE_DETAILS_TD = "border: 1px solid #dddddd; padding: 12px; background-color: #fdfdfd;";
+    public static final String STYLE_TASK_DETAILS_TD = "border: 1px solid #dddddd; padding: 10px; background-color: #fafafa;";
 
     // -- HTML Formats (Templates) --
     public static final String HTML_TABLE_START_FMT = "<table style=\"%s\">";

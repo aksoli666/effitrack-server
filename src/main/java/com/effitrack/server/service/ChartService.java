@@ -16,7 +16,8 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.springframework.stereotype.Service;
-import java.awt.Color;
+
+import java.awt.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -109,7 +110,6 @@ public class ChartService {
         plot.setShadowPaint(null);
         plot.setLabelBackgroundPaint(COLOR_BG);
         plot.setSimpleLabels(true);
-
         plot.setLabelGenerator(null);
 
         plot.setSectionPaint(StringConst.TEXT_HEADER_WORK_MIN, COLOR_SUCCESS);

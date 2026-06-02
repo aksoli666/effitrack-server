@@ -13,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.Data;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -64,6 +65,12 @@ public class Equipment {
 
     @Transient
     private int currentStatusDuration;
+
+    @Transient
+    private String operatorComment;
+
+    @Transient
+    private String aiAnalysis;
 
     @JsonIgnore
     @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY)

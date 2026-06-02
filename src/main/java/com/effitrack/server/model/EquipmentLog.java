@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,4 +38,10 @@ public class EquipmentLog {
     @JoinColumn(name = "equipment_id", nullable = false)
     @JsonIgnore
     private Equipment equipment;
+
+    @Column(name = "operator_comment")
+    private String operatorComment;
+
+    @Column(name = "ai_analysis", length = 500)
+    private String aiAnalysis;
 }
