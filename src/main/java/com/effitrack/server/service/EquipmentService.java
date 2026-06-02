@@ -139,7 +139,7 @@ public class EquipmentService {
 
             equipment.setOperatorComment(request.getOperatorComment());
             metricsHandler.calculateDynamicFields(equipment);
-            return equipment;
+            return equipmentRepository.save(equipment);
         });
     }
 
@@ -148,7 +148,7 @@ public class EquipmentService {
         return equipmentRepository.findById(id).map(equipment -> {
             if (equipment.getStatus() == EquipmentStatus.RUNNING) {
                 equipment.setAiAnalysis(AI_NOT_NEEDED_MSG);
-                return equipment;
+                return equipmentRepository.save(equipment);
             }
 
             EquipmentLog activeLog = logRepository
@@ -157,7 +157,7 @@ public class EquipmentService {
 
             if (activeLog == null) {
                 equipment.setAiAnalysis(LOG_NOT_FOUND_MSG);
-                return equipment;
+                return equipmentRepository.save(equipment);
             }
 
             String systemReason = activeLog.getReason() != null ? activeLog.getReason() : DEFAULT_SYSTEM_REASON;
@@ -172,7 +172,7 @@ public class EquipmentService {
 
             equipment.setAiAnalysis(freshAnalysis);
             metricsHandler.calculateDynamicFields(equipment);
-            return equipment;
+            return equipmentRepository.save(equipment);
         });
     }
 

@@ -66,10 +66,10 @@ public class Equipment {
     @Transient
     private int currentStatusDuration;
 
-    @Transient
+    @Column(name = "operator_comment", length = 1000)
     private String operatorComment;
 
-    @Transient
+    @Column(name = "ai_analysis", length = 2000)
     private String aiAnalysis;
 
     @JsonIgnore
