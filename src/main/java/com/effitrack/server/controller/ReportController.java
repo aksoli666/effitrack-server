@@ -73,7 +73,7 @@ public class ReportController {
 
         emailService.sendReportWithAttachment(targetEmail, subject, fullBody, chartImage);
 
-        return ResponseEntity.ok(StringConst.SUCCESS_MESSAGE);
+        return ResponseEntity.ok("{\"message\": \"" + StringConst.SUCCESS_MESSAGE + "\"}");
     }
 
     @Operation(summary = StringConst.OP_REPORT_EQUIPMENT_SUM)
@@ -93,7 +93,7 @@ public class ReportController {
 
         emailService.sendReportWithAttachment(targetEmail, subject, reportHtml, chartImage);
 
-        return ResponseEntity.ok(StringConst.SUCCESS_REPORT_EQUIPMENT);
+        return ResponseEntity.ok("{\"message\": \"" + StringConst.SUCCESS_REPORT_EQUIPMENT + "\"}");
     }
 
     private String buildTasksTableHtml(List<Task> tasks) {
