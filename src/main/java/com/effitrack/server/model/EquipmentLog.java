@@ -39,9 +39,9 @@ public class EquipmentLog {
     @JsonIgnore
     private Equipment equipment;
 
-    @Column(name = "operator_comment")
+    @Column(name = "operator_comment", length = 1000)
     private String operatorComment;
 
-    @Column(name = "ai_analysis", length = 500)
+    @Column(name = "ai_analysis", length = 2000)
     private String aiAnalysis;
 }
